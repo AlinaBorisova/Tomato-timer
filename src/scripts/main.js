@@ -1,4 +1,7 @@
 import '../scss/index.scss'
+import {veges} from "./class.js";
+import {fruits} from "./class.js";
+
 let count = 0;
 const imp = ['default', 'important', 'so-so']
 document.querySelector('.button-importance').addEventListener('click', ({target}) => {
@@ -14,4 +17,15 @@ document.querySelector('.button-importance').addEventListener('click', ({target}
       target.classList.remove(imp[i])
     }
   }
-})
+});
+
+console.log(veges);
+console.log(veges.increaseCount());
+console.log(veges.setTitle('Cucumber').increaseCount());
+
+console.log(fruits);
+console.log(fruits.increaseCount());
+console.log(fruits.setTitle('Peach').increaseCount());
+console.log(fruits.setTitle('Pear').increaseCount());
+
+
