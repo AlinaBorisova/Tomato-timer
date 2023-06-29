@@ -1,10 +1,11 @@
 import '../scss/index.scss'
-// import {veges} from "./class.js";
-// import {fruits} from "./class.js";
-import {buy} from "./timerClass";
+import {ControllerTomato} from "./controllerTomato";
+import {RenderTomato} from "./renderTomato";
+import {renderMain} from "./Tomato";
 
 let count = 0;
-const imp = ['default', 'important', 'so-so']
+const imp = ['default', 'important', 'so-so'];
+
 document.querySelector('.button-importance').addEventListener('click', ({target}) => {
   count += 1;
   if (count >= imp.length) {
@@ -20,13 +21,9 @@ document.querySelector('.button-importance').addEventListener('click', ({target}
   }
 });
 
-// console.log(buy);
-// console.log(veges.increaseCount());
-// console.log(veges.setTitle('Cucumber').increaseCount());
-//
-// console.log(fruits);
-// console.log(fruits.increaseCount());
-// console.log(fruits.setTitle('Peach').increaseCount());
-// console.log(fruits.setTitle('Pear').increaseCount());
+export const check = new ControllerTomato();
+check.inputTask();
+// renderMain.windowRender()
 
+// check.chooseTask();
 
