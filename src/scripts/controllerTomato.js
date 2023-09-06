@@ -98,13 +98,12 @@ export class ControllerTomato {
                     btnForm.textContent = 'Изменить';
                     this.editTask(getIdTask, btnForm, btnImportance);
                 }
-                console.log('getIdTask', getIdTask)
+
                 this.#taskId = getIdTask;
                 input.value = titleTask;
                 btnImportance.classList.remove(btnImportance.classList[2]);
                 btnImportance.classList.add(editBtnImportance);
             }
-
         });
     }
 
@@ -114,7 +113,7 @@ export class ControllerTomato {
     editTask(id, btnForm, btnImportance) {
         this.tomatoClass.tasks.forEach(item => {
             if (id === item.id) {
-                this.editSubmit(item, btnForm, btnImportance);  // собрарается несколько item
+                this.editSubmit(item, btnForm, btnImportance);
             }
         });
     }
@@ -129,8 +128,6 @@ export class ControllerTomato {
         task.importance = importanceBtn.classList[2];
 
         this.tomatoClass.editStorage(task);
-
-        console.log('replaceTask', task);
     }
 
     editSubmit(item, btnForm, btnImportance) {
@@ -143,8 +140,6 @@ export class ControllerTomato {
 
             if (inputTask.value.trim() !== '') {
                 this.replaceTask(item, inputTask, importanceBtn);
-                console.log('edited', item)
-
                 this.changeBtnForm(btnForm, btnImportance);
                 this.tomatoClass.renderTomato.renderRows();
                 form.classList.remove('task-form__edit');

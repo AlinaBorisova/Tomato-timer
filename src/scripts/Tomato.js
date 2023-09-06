@@ -160,9 +160,9 @@ export class Tomato {
 
     editStorage(task) {
         this.getStorage('data');
-        this.tasks.filter(item => item.id === task.id);
+        let editedTaskIndex = this.tasks.findIndex(item => item.id === task.id);
+        this.tasks.splice(editedTaskIndex, 1, task);
         this.setStorage(this.tasks);
-        console.log('editStorage', task)
     }
 }
 
