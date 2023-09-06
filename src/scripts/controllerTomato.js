@@ -1,12 +1,11 @@
 import {DefaultTask, ImportantTask, StandardTask} from "./Task";
-import {logPlugin} from "@babel/preset-env/lib/debug";
 
 export class ControllerTomato {
     constructor(tomatoClass) {
         this.tomatoClass = tomatoClass;
     }
 
-    // #taskId;
+    #taskId;
 
     /*
     Создает новый объект с присвоение класса importance
@@ -32,8 +31,12 @@ export class ControllerTomato {
             event.preventDefault();
             if (!form.classList.contains('task-form__edit')) {
                 const inputTask = document.querySelector('.input-primary');
-                this.checkImportance(importanceBtn, inputTask);
-                form.reset();
+
+                if (inputTask.value.trim() !== '') {
+                    this.checkImportance(importanceBtn, inputTask);
+                    form.reset();
+                }
+
             }
         });
     }
@@ -96,6 +99,7 @@ export class ControllerTomato {
                     this.editTask(getIdTask, btnForm, btnImportance);
                 }
                 console.log('getIdTask', getIdTask)
+                this.#taskId = getIdTask;
                 input.value = titleTask;
                 btnImportance.classList.remove(btnImportance.classList[2]);
                 btnImportance.classList.add(editBtnImportance);
@@ -108,12 +112,9 @@ export class ControllerTomato {
        Сравнивает задачи и вызывает отправвку задачи на редактирование
     */
     editTask(id, btnForm, btnImportance) {
-        // const taskId = id || this.#taskId;
         this.tomatoClass.tasks.forEach(item => {
             if (id === item.id) {
                 this.editSubmit(item, btnForm, btnImportance);  // собрарается несколько item
-                console.log(item);
-
             }
         });
     }
@@ -122,9 +123,14 @@ export class ControllerTomato {
         Перезаписывает задачу в data
      */
     replaceTask(task, inputTask, importanceBtn) {
+        task.id = this.#taskId;
         task.title = inputTask.value;
+        task.count = 0;
         task.importance = importanceBtn.classList[2];
+
         this.tomatoClass.editStorage(task);
+
+        console.log('replaceTask', task);
     }
 
     editSubmit(item, btnForm, btnImportance) {
@@ -135,12 +141,16 @@ export class ControllerTomato {
             const inputTask = document.querySelector('.input-primary');
             const importanceBtn = document.querySelector('.button-importance');
 
-            this.replaceTask(item, inputTask, importanceBtn);
-            console.log('edited', item)
-            this.changeBtnForm(btnForm, btnImportance);
-            this.tomatoClass.renderTomato.renderRows();
-            form.classList.remove('task-form__edit');
-            form.reset();
+            if (inputTask.value.trim() !== '') {
+                this.replaceTask(item, inputTask, importanceBtn);
+                console.log('edited', item)
+
+                this.changeBtnForm(btnForm, btnImportance);
+                this.tomatoClass.renderTomato.renderRows();
+                form.classList.remove('task-form__edit');
+                item = {};
+                form.reset();
+            }
         });
     }
 

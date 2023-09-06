@@ -23,7 +23,6 @@ export class Tomato {
     renderTomato = new RenderTomato(this);
     controllerTomato = new ControllerTomato(this);
 
-
     init() {
         this.render();
         this.observer();
@@ -147,7 +146,7 @@ export class Tomato {
 
     setStoragePush(tasks, obj) {
         tasks.push(obj);
-        this.setStorage(tasks)
+        this.setStorage(tasks);
     };
 
     removeStorage(task) {
@@ -161,8 +160,9 @@ export class Tomato {
 
     editStorage(task) {
         this.getStorage('data');
-        this.tasks.find(item => item.id === task.id);
+        this.tasks.filter(item => item.id === task.id);
         this.setStorage(this.tasks);
+        console.log('editStorage', task)
     }
 }
 

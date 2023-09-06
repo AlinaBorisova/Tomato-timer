@@ -1,4 +1,5 @@
 import { el } from "redom"
+
 export class RenderTomato {
     constructor(tomatoClass) {
         this.tomatoClass = tomatoClass;
@@ -80,10 +81,12 @@ export class RenderTomato {
         const list = document.querySelector('.pomodoro-tasks__quest-tasks');
         list.innerHTML = '';
         const data = this.tomatoClass.getStorage('data');
+        if (data.length) {
+            data.forEach((item, i) => {
+                this.createRow(item, i);
+            });
+        }
 
-        data.forEach((item, i) => {
-           this.createRow(item, i);
-        });
     }
 
     createRow(task, index) {
