@@ -3,9 +3,9 @@ import {ControllerTomato} from "./controllerTomato";
 
 export class Tomato {
     constructor(
-        timeTask = 7, //25
-        pause = 3, //5
-        longPause = 5, //15
+        timeTask = 25,
+        pause = 5,
+        longPause = 15,
         tasks = [],
     ) {
         if (Tomato._instance) {
@@ -17,47 +17,106 @@ export class Tomato {
         this.tasks = tasks;
         this.activeTask = null;
         Tomato._instance = this;
+
+    }
+
+    renderTomato = new RenderTomato(this);
+    controllerTomato = new ControllerTomato(this);
+
+
+    init() {
+        this.render();
+        this.observer();
+    }
+
+    render(){
+        this.renderTomato.windowRender(this.activeTask, this.timeTask);
+        this.renderTomato.renderRows()
+        this.tasks = this.getStorage('data');
+    }
+
+/*
+    Вызываются все слушатели со страницы
+ */
+    observer() {
+        this.controllerTomato.formSubmit();
+        this.controllerTomato.clickStartTimer();
+        this.controllerTomato.removeTask();
+        this.controllerTomato.getEditTask();
+        this.controllerTomato.chooseTask();
+        this.controllerTomato.clickButtonsList();
     }
 
     addTask(obj) {
-        this.tasks.push(obj);
+        this.setStoragePush(this.tasks, obj);
+        this.renderTomato.renderRows();
     }
 
-    activateTask(id) {
+    activateTask(target) {
         this.tasks.forEach(itemTask => {
-            if (itemTask.id === id) {
+            if (itemTask.id === target.id) {
                 return this.activeTask = itemTask;
             }
         })
+        this.renderTomato.changeActiveTask();
+    }
+
+    updateTime(ms, timeTask) {
+        const getMinutes = document.querySelector('.window__timer-text-minutes');
+        const getSeconds = document.querySelector('.window__timer-text-seconds');
+        let minutes = Math.floor(ms / 1000 / 60);
+        let seconds = Math.floor((ms / 1000) % 60);
+
+        if (timeTask >= 10) {
+            getMinutes.textContent = `${minutes}`;
+            getSeconds.textContent = `${seconds}`;
+            if (getSeconds.textContent < 10 && getSeconds.textContent !== '00') {
+                getSeconds.textContent = '0' + `${seconds}`;
+            } else {
+                getSeconds.textContent = `${seconds}`;
+            }
+        } else if (0 <=timeTask < 10) {
+            getMinutes.textContent = '0' + minutes
+            if (getSeconds.textContent < 10 && getSeconds.textContent !== '00') {
+                getSeconds.textContent = '0' + `${seconds}`;
+            } else {
+                getSeconds.textContent = `${seconds}`;
+            }
+        }
     }
 
     startTimer(timeTask, activeTask) {
-        const timer = setInterval(() => {
-            if (timeTask > 0) {
-                console.log(timeTask);
-            } else {
-                clearInterval(timer);
-                console.log('Task before increaseCount', activeTask);
-                activeTask.increaseCount(activeTask.id);
+        let ms = timeTask * 60000;
+        this.renderTomato.hiddenPause();
 
+        const timer = setInterval(() => {
+            ms -= 1000;
+            this.updateTime(ms, timeTask);
+
+            if (ms <= 0) {
+                clearInterval(timer);
+                activeTask.increaseCount(activeTask.id);
                 if (activeTask.count % 3 === 0) {
-                    this.startPause(this.longPause);
+                    this.startPause(this.longPause, timeTask, activeTask);
                 } else {
-                    this.startPause(this.pause);
+                    this.startPause(this.pause, timeTask, activeTask);
                 }
             }
-            --timeTask;
+            this.controllerTomato.clickStopTimer(timer);
+
         }, 1000);
     }
 
-    startPause(pause) {
+    startPause(pause, timeTask, activeTask) {
+        let ms = pause * 60000;
         const timerPause = setInterval(() => {
-            if (pause > 0) {
-                console.log(pause)
-            } else {
-                clearInterval(timerPause)
+            ms -= 1000;
+            this.updateTime(ms, pause);
+            this.renderTomato.showPause();
+            if (ms <= 0) {
+                clearInterval(timerPause);
+                this.startTimer(timeTask, activeTask);
             }
-            --pause;
         }, 1000)
     }
 
@@ -71,62 +130,40 @@ export class Tomato {
             return err;
         }
     }
-}
 
-export class Task {
-    constructor(title, count = 0) {
-        this.id = Math.random().toString(16).slice(2);
-        this.title = title;
-        this.count = count;
+    stopTimer() {
+        this.renderTomato.renderTimerStop(this.timeTask);
     }
 
-    increaseCount() {
-        this.count++;
-        console.log(this);
-        return this;
+    getStorage(keyItem) {
+        if (localStorage.getItem('data')) {
+            return JSON.parse(localStorage.getItem(keyItem));
+        } else return [];
     }
 
-    setTitle(title) {
-        this.title = title;
-        return this;
-    }
-}
+    setStorage(tasks) {
+        localStorage.setItem('data', JSON.stringify(tasks));
+    };
 
-class ImportantTask extends Task {
-    constructor(props) {
-        super(props);
-        this.importance = 'important';
-    }
-}
-class StandardTask extends Task {
-    constructor(props) {
-        super(props);
-        this.importance = 'so-so';
-    }
-}
-class UnimportantTask extends Task {
-    constructor(props) {
-        super(props);
-        this.importance = 'default';
+    setStoragePush(tasks, obj) {
+        tasks.push(obj);
+        this.setStorage(tasks)
+    };
+
+    removeStorage(task) {
+        let items = JSON.parse(localStorage.getItem('data'));
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].id === task.id) items.splice(i, 1);
+        }
+        this.setStorage(items);
+        this.tasks = this.getStorage('data');
+    };
+
+    editStorage(task) {
+        this.getStorage('data');
+        this.tasks.find(item => item.id === task.id);
+        this.setStorage(this.tasks);
     }
 }
-
-
-// Доделать задание 1 через паттерн Command
-
-
-export const timerTask = new Tomato();
-export const renderMain = new RenderTomato();
-
-
-// render.changeActiveTask(timerTask.activeTask);
-
-
-
-
-
-// render.addInListTask(timerTask.tasks[timerTask.tasks.length - 1].title);
-// render.clickButtons();
-// timerTask.startTask();
 
 

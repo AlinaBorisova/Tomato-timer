@@ -1,10 +1,11 @@
 import '../scss/index.scss'
-import {ControllerTomato} from "./controllerTomato";
-import {RenderTomato} from "./renderTomato";
-import {renderMain} from "./Tomato";
+import { Tomato } from "./Tomato";
 
 let count = 0;
 const imp = ['default', 'important', 'so-so'];
+
+export const mainClass = new Tomato();
+mainClass.init();
 
 document.querySelector('.button-importance').addEventListener('click', ({target}) => {
   count += 1;
@@ -20,10 +21,4 @@ document.querySelector('.button-importance').addEventListener('click', ({target}
     }
   }
 });
-
-export const check = new ControllerTomato();
-check.inputTask();
-// renderMain.windowRender()
-
-// check.chooseTask();
 

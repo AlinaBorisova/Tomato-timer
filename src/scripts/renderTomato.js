@@ -1,22 +1,63 @@
-import { el, mount } from "redom"
+import { el } from "redom"
 export class RenderTomato {
-    constructor() {
-        // this.pomodoroForm = el('div');
-        this.activeTask = el('p');
-        this.listTasks = el('ul');
+    constructor(tomatoClass) {
+        this.tomatoClass = tomatoClass;
     }
 
-    windowRender() {
-        // const container = document.querySelector('.main__container');
-        const pomodoroForm = el('div');
-        pomodoroForm.classList.add('pomodoro-form', 'window')
+    renderTimeMinutes(time) {
+        if (time < 10) {
+            let timer = '';
+            timer = '0' + time;
+            return timer;
+        } else return time;
+    }
+
+    showPause() {
+        const pauseText = document.querySelector('.pause');
+        pauseText.style.cssText = `
+          display: block;
+          text-align: center;
+          color: #333333;
+          font-size: 50px;
+          line-height: 83px;
+          text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+        `;
+    }
+
+    hiddenPause () {
+        const pauseText = document.querySelector('.pause');
+        pauseText.style.display = `none`;
+    }
+
+    renderTimerStop(time) {
+        const title = document.querySelector('.window__panel-title');
+        const minutes = document.querySelector('.window__timer-text-minutes');
+        const seconds = document.querySelector('.window__timer-text-seconds');
+        title.textContent = 'Choose your task';
+        minutes.textContent = this.renderTimeMinutes(time);
+        seconds.textContent = '00';
+    }
+
+    showTitleTask(titleTask) {
+        if(titleTask !== null) {
+            return titleTask;
+        } else {
+            return titleTask = 'Choose your task';
+        }
+    }
+
+    windowRender(titleTask, time) {
+        const pomodoroForm = document.querySelector('.pomodoro-form');
         pomodoroForm.innerHTML = `
           <div class="window__panel">
-<!--            <p class="window__panel-title">Сверстать сайт</p>-->
+            <p class="window__panel-title">${this.showTitleTask(titleTask)}</p>
             <p class="window__panel-task-text">Томат 2</p>
           </div>
           <div class="window__body">
-            <p class="window__timer-text">25:00</p>
+          <p class="pause">Pause</p>
+            <p class="window__timer-text">
+                <span class="window__timer-text-minutes">${this.renderTimeMinutes(time)}</span>:<span class="window__timer-text-seconds">00</span>
+            </p>
             <div class="window__buttons">
               <button class="button button-primary">Старт</button>
               <button class="button button-secondary">Стоп</button>
@@ -28,68 +69,42 @@ export class RenderTomato {
             <button type="submit" class="button button-primary task-form__add-button">Добавить</button>
           </form>
         `;
-        debugger
-        // container.prepend(pomodoroForm)
     }
 
-    changeActiveTask(activeTask) {
-        const windowPanel = document.querySelector('.window__panel');
-        this.activeTask.classList.add('window__panel-title');
-        this.activeTask.textContent = activeTask;
-        windowPanel.prepend(this.activeTask);
+    changeActiveTask() {
+        const panelTitle = document.querySelector('.window__panel-title')
+        panelTitle.textContent = this.tomatoClass.activeTask.title;
     }
 
-    addInListTask(titleTask) {
-        const pomodoroTasks = document.querySelector('.pomodoro-tasks');
-        this.listTasks.classList.add('pomodoro-tasks__quest-tasks');
-        const taskItem = el('li');
-        taskItem.classList.add('pomodoro-tasks__list-task');
-        taskItem.setAttribute('id', titleTask.id);
+    renderRows() {
+        const list = document.querySelector('.pomodoro-tasks__quest-tasks');
+        list.innerHTML = '';
+        const data = this.tomatoClass.getStorage('data');
 
-        this.listTasks.append(taskItem);
-        pomodoroTasks.append(this.listTasks);
-
-        this.createList(taskItem, titleTask);
-
-        const buttons = document.querySelectorAll('.burger-popup');
-        buttons.forEach(item => {
-            item.classList.remove('burger-popup_active')
-        })
+        data.forEach((item, i) => {
+           this.createRow(item, i);
+        });
     }
 
-    createList(taskItem, titleTask) {
-        const items = document.querySelectorAll('.pomodoro-tasks__list-task');
-
-        items.forEach((item, i) => {
-            // <button className="pomodoro-tasks__task-text pomodoro-tasks__task-text_active">
-
-            taskItem.innerHTML = `
-              <span class="count-number">${i + 1}</span>
-              <button class="pomodoro-tasks__task-text" id=${titleTask.id}>
-                ${titleTask.title}
+    createRow(task, index) {
+        const taskItem = `
+            <span class="count-number">${index + 1}</span>
+              <button class="pomodoro-tasks__task-text" id=${task.id}>
+                ${task.title}
               </button>
               <button class="pomodoro-tasks__task-button"></button>
               <!-- popup menu -->
-              <div class="burger-popup burger-popup_active">
+              <div class="burger-popup">
                 <button class="popup-button burger-popup__edit-button">Редактировать</button>
                 <button class="popup-button burger-popup__delete-button">Удалить</button>
               </div>
         `;
-        })
-    }
 
-    clickButtons() {
-        const list = document.querySelector('.pomodoro-tasks__quest-tasks');
-        const btns = document.querySelector('.burger-popup');
-        list.addEventListener('click', ({target}) => {
-            if (target.closest('.pomodoro-tasks__task-button')) {
-                btns.classList.add('burger-popup_active')
-            }
-        });
-        document.addEventListener('click', ({target}) => {
-            if (!target.closest('.pomodoro-tasks__task-button')) {
-                btns.classList.remove('burger-popup_active');
-            }
-        })
+        const rows = el('li');
+        rows.classList.add('pomodoro-tasks__list-task', task.importance)
+        rows.setAttribute('id', task.id);
+
+        rows.innerHTML = taskItem;
+        document.querySelector('.pomodoro-tasks__quest-tasks').append(rows);
     }
 }
