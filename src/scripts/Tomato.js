@@ -165,17 +165,6 @@ export class Tomato {
         this.setStorage(this.tasks);
     }
 
-    // editStorage(task) {
-    //     this.getStorage('data');
-    //     this.tasks.map(item => {
-    //         if (item.id === task.id) {
-    //             item.title = task.title;
-    //             item.importance = task.importance;
-    //             return item;
-    //         }
-    //     });
-    //     this.setStorage(this.tasks);
-    // }
 }
 
 
